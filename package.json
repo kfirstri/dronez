@@ -1,0 +1,20 @@
+{
+  "name": "dronez",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/three": "^0.143.0",
+    "typescript": "^4.6.4",
+    "vite": "^3.0.7"
+  },
+  "dependencies": {
+    "lil-gui": "^0.17.0",
+    "three": "^0.143.0"
+  }
+}
