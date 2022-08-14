@@ -17,7 +17,7 @@ const render = () => {
 
 const animate = () => {
   requestAnimationFrame(animate);
-  controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
+  controls.update();
   render();
 }
 
@@ -26,6 +26,56 @@ const onWindowResize = () => {
   camera.updateProjectionMatrix();
 
   renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+const initControls = () => {
+  controls = new MapControls(camera, renderer.domElement);
+
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.06;
+
+  controls.screenSpacePanning = false;
+
+  controls.minDistance = 100;
+  controls.maxDistance = 800;
+
+  controls.maxPolarAngle = Math.PI / 2;
+}
+
+const initWorld = () => {
+  const geometry = new THREE.BoxGeometry(1, 1, 1);
+  geometry.translate(0, 0.5, 0);
+
+  const material = new THREE.MeshPhongMaterial({ color: 0xffffff, flatShading: true });
+
+  for (let i = 0; i < 500; i++) {
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.x = Math.random() * 1600 - 800;
+    mesh.position.y = 0;
+    mesh.position.z = Math.random() * 1600 - 800;
+
+    mesh.scale.x = 20;
+    mesh.scale.y = Math.random() * 80 + 10;
+    mesh.scale.z = 20;
+
+    mesh.updateMatrix();
+    mesh.matrixAutoUpdate = false;
+    
+    scene.add(mesh);
+  }
+}
+
+const initLights = () => {
+  const dirLight1 = new THREE.DirectionalLight(0xffffff);
+  dirLight1.position.set(1, 1, 1);
+  scene.add(dirLight1);
+
+  const dirLight2 = new THREE.DirectionalLight(0x002288);
+  dirLight2.position.set(- 1, - 1, - 1);
+  scene.add(dirLight2);
+
+  const ambientLight = new THREE.AmbientLight(0x222222);
+  scene.add(ambientLight);
 }
 
 const init = () => {
@@ -45,50 +95,12 @@ const init = () => {
   camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
   camera.position.set(400, 200, 0);
 
-  // Init Controls
-  controls = new MapControls(camera, renderer.domElement);
+  initControls();
 
-  controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
-  controls.dampingFactor = 0.06;
+  initWorld();
 
-  controls.screenSpacePanning = false;
+  initLights();
 
-  controls.minDistance = 100;
-  controls.maxDistance = 800;
-
-  controls.maxPolarAngle = Math.PI / 2;
-
-  // Init World
-  const geometry = new THREE.BoxGeometry(1, 1, 1);
-  geometry.translate(0, 0.5, 0);
-  const material = new THREE.MeshPhongMaterial({ color: 0xffffff, flatShading: true });
-
-  for (let i = 0; i < 500; i++) {
-
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.position.x = Math.random() * 1600 - 800;
-    mesh.position.y = 0;
-    mesh.position.z = Math.random() * 1600 - 800;
-    mesh.scale.x = 20;
-    mesh.scale.y = Math.random() * 80 + 10;
-    mesh.scale.z = 20;
-    mesh.updateMatrix();
-    mesh.matrixAutoUpdate = false;
-    scene.add(mesh);
-
-  }
-
-  // Set lights
-  const dirLight1 = new THREE.DirectionalLight(0xffffff);
-  dirLight1.position.set(1, 1, 1);
-  scene.add(dirLight1);
-
-  const dirLight2 = new THREE.DirectionalLight(0x002288);
-  dirLight2.position.set(- 1, - 1, - 1);
-  scene.add(dirLight2);
-
-  const ambientLight = new THREE.AmbientLight(0x222222);
-  scene.add(ambientLight);
 
   // Bind events
   window.addEventListener('resize', onWindowResize);
@@ -100,6 +112,6 @@ const init = () => {
 }
 
 
-// todo: move this
+// todo: move this after loading everything
 init();
 animate();
