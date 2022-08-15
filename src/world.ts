@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { Group } from 'three';
 
 import ResourceManager from "./resources";
-import { engineConfig } from "./types";
+import { GameConfig, UAV } from "./types";
 
 class WorldManager {
   scene: THREE.Scene;
@@ -11,15 +11,22 @@ class WorldManager {
   gridZ: number;
   boxSize: number;
 
+  randomBuildingsAmount: number;
+
+  uavsConfig: UAV[]
+
   shouldMoveUAVs: boolean = false;
   uavs: Group[] = []
 
   private resources: ResourceManager;
 
-  constructor(scene: THREE.Scene, config: engineConfig) {
-    this.gridX = config.gridX;
-    this.gridZ = config.gridZ;
-    this.boxSize = config.boxSize;
+  constructor(scene: THREE.Scene, config: GameConfig) {
+    this.gridX = config.mapConfig.gridX;
+    this.gridZ = config.mapConfig.gridZ;
+    this.boxSize = config.mapConfig.boxSize;
+
+    this.randomBuildingsAmount = config.mapConfig.randomBuildings;
+    this.uavsConfig = config.mapConfig.UAVs;
 
     this.scene = scene;
 
@@ -37,7 +44,7 @@ class WorldManager {
       return new THREE.MeshPhongMaterial({ color: 0xffffff, flatShading: true, map: texture })
     });
 
-    for (let i = 0; i < this.gridX * 2; i++) {
+    for (let i = 0; i < this.randomBuildingsAmount; i++) {
       const mesh = new THREE.Mesh(geometry, materials[i % 3]);
 
       const randomX = Math.floor(Math.random() * this.gridX);
@@ -58,25 +65,6 @@ class WorldManager {
 
       this.scene.add(mesh);
     }
-
-    // for (let i = 0; i < this.gridX; i++) {
-    //   for (let j = 0; j < this.gridZ; j++) {
-    //     const mesh = new THREE.Mesh(geometry, materials[1]);
-    //     const pos = this.getGridBoxCenter(i, j);
-    //     mesh.position.x = pos.x;
-    //     mesh.position.y = 0;
-    //     mesh.position.z = pos.z;
-
-    //     mesh.scale.x = this.boxSize/2;
-    //     mesh.scale.y = (i + 1) * (j + 1);
-    //     mesh.scale.z = this.boxSize/2;
-
-    //     mesh.updateMatrix();
-    //     mesh.matrixAutoUpdate = false;
-
-    //     this.scene.add(mesh);
-    //   }
-    // }
 
     const biggerValue = Math.max(this.gridX, this.gridZ)
 
@@ -115,16 +103,21 @@ class WorldManager {
     this.resources.loadModels('../resources/uav1/scene.gltf').then((gltf) => {
       const axesHelper = new THREE.AxesHelper(20);
       gltf.scene.add(axesHelper);
-      gltf.scene.position.y = 30;
 
-      const pos = this.getGridBoxCenter(4,4);
+      for (let UAVConfig of this.uavsConfig) {
+        const currentUAVScene = gltf.scene.clone(true);
 
-      gltf.scene.position.z = pos.z;
-      gltf.scene.position.x = pos.x;
-      console.log(gltf.scene.position);
+        const pos = this.getGridBoxCenter(UAVConfig.position.x, UAVConfig.position.y);
 
-      this.uavs.push(gltf.scene);
-      this.scene.add(gltf.scene);
+        currentUAVScene.name = UAVConfig.name;
+
+        currentUAVScene.position.z = pos.z;
+        currentUAVScene.position.x = pos.x;
+        currentUAVScene.position.y = 50;
+
+        this.uavs.push(currentUAVScene);
+        this.scene.add(currentUAVScene);
+      }
     });
   }
 
@@ -150,8 +143,8 @@ class WorldManager {
       currentUav.position.z = nextZ;
       currentUav.position.y = nextY;
 
-      // let angle = Math.sin(time / 200 + 300) * 0.05;
-      // currentUav.rotateZ(THREE.MathUtils.degToRad(angle)); // todo: replace this with an animation prob
+      let angle = Math.sin(time / 20 + 300) * 0.05;
+      currentUav.rotateZ(THREE.MathUtils.degToRad(angle)); // todo: replace this with an animation prob
     }
   }
 

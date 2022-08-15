@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { Texture, TextureLoader } from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 class ResourceManager {

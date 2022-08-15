@@ -4,7 +4,7 @@ import { Group, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 import { MapControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 import '../style/style.css';
-import { engineConfig } from './types';
+import { GameConfig } from './types';
 import WorldManager from './world';
 
 class dronezGame {
@@ -20,7 +20,7 @@ class dronezGame {
 
   private world: WorldManager;
 
-  constructor(config: engineConfig) {
+  constructor(config: GameConfig) {
     this.canvasElement = config.canvasElement;
 
     this.scene = new THREE.Scene();
@@ -116,11 +116,28 @@ class dronezGame {
 }
 
 
-let game: engineConfig = {
+let game: GameConfig = {
   canvasElement: <HTMLCanvasElement>document.getElementById('game'),
-  gridX: 20,
-  gridZ: 20,
-  boxSize: 20
+  mapConfig: {
+    randomBuildings: 30,
+    gridX: 20,
+    gridZ: 20,
+    boxSize: 20,
+    UAVs: [
+      {
+        position: { x: 0, y: 4 },
+        name: "first"
+      },
+      {
+        position: { x: 0, y: 6 },
+        name: "second"
+      },
+      {
+        position: { x: 3, y: 5 },
+        name: "third"
+      }
+    ]
+  }
 };
 
 // Todo: add compatibility checks
