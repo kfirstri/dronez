@@ -7,15 +7,7 @@ import '../style/style.css';
 import { engineConfig } from './types';
 import WorldManager from './world';
 
-
-let game: engineConfig = {
-  canvasElement: <HTMLCanvasElement>document.getElementById('game'),
-  gridX: 30,
-  gridZ: 30,
-  boxSize: 25
-};
-
-class dronezEngine {
+class dronezGame {
   canvasElement: HTMLCanvasElement;
 
   uavs: Group[] = [];
@@ -43,8 +35,8 @@ class dronezEngine {
   init() {
 
     // Init Scene
-    this.scene.background = new THREE.Color(0x0099ee);
-    this.scene.fog = new THREE.FogExp2(0x0099ee, 0.0012);
+    this.scene.background = new THREE.Color(0x7dcff5);
+    this.scene.fog = new THREE.FogExp2(0xf7f2c8, 0.0012);
 
     // Init Renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas: this.canvasElement });
@@ -53,7 +45,7 @@ class dronezEngine {
 
     // Init Camera
     this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 10, 1000);
-    this.camera.position.set(300, 150, 0);
+    this.camera.position.set(0, 150, 300);
 
     this.initControls();
     this.world.init();
@@ -110,19 +102,27 @@ class dronezEngine {
   }
 
   initLights() {
-    const dirLight1 = new THREE.DirectionalLight(0xffffff);
+    const dirLight1 = new THREE.DirectionalLight(0xcccccc, 0.5);
     dirLight1.position.set(1, 1, 1);
     this.scene.add(dirLight1);
 
-    const dirLight2 = new THREE.DirectionalLight(0x0099ee);
+    const dirLight2 = new THREE.DirectionalLight(0xc4bc7a, 0.5);
     dirLight2.position.set(- 1, - 1, - 1);
     this.scene.add(dirLight2);
 
-    const ambientLight = new THREE.AmbientLight(0x444444);
+    const ambientLight = new THREE.AmbientLight(0xf7f2c8, 0.6);
     this.scene.add(ambientLight);
   }
 }
 
+
+let game: engineConfig = {
+  canvasElement: <HTMLCanvasElement>document.getElementById('game'),
+  gridX: 20,
+  gridZ: 20,
+  boxSize: 20
+};
+
 // Todo: add compatibility checks
-const engine = new dronezEngine(game);
+const engine = new dronezGame(game);
 engine.start();
