@@ -14,6 +14,9 @@ https://stackoverflow.com/questions/56029083/change-width-and-height-of-a-gridhe
 ## Tasks:
 
 [X] Import and load UAV models
-[ ] Change the background to something else, desert?
-[ ] is the game really a grid? 
+[X] Change the background to something else, desert?
+[X] is the game really a grid? 
 [ ] 
+
+Map:
+* Set a start point

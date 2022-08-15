@@ -1,8 +1,8 @@
 import { Group } from "three"
 
-interface gameSystem {
-    uavs: Group[]
-    moveUAVs: boolean,
-    height: number,
-    width: number
+interface engineConfig {
+    canvasElement: HTMLCanvasElement
+    gridX: number = 30
+    gridZ: number = 30
+    boxSize: number = 20
 }
