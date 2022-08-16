@@ -35,6 +35,6 @@ We also initalize the game Engine, load the game configuration and "play" the co
 * Commands - list of commands intended to each UAV (has to have the UAVId)
 
 # What's missing
-[ ] HTTP Requests
-[ ] Commands need more work
-[ ]
+[] HTTP Requests
+[] Commands need more work
+[]
