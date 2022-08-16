@@ -39,3 +39,17 @@ We also initalize the game Engine, load the game configuration and "play" the co
 - [ ] Commands need more work
 - [ ] Maybe read a map of the buildings?
 - [ ] Add a "base" for the drones to lift off from
+
+
+# Technical info
+
+### Based on
+This "game" is based on this three.js example - 
+https://threejs.org/examples/?q=orbit#misc_controls_orbit
+
+I used it to create the random "buildings" and learned about the whole OrbitControls (aka MapControls).
+
+### Resources
+- Asphalt texture taken from https://3dtextures.me/2017/04/05/asphalt-001/
+- "Attack UAV" model taken from (https://skfb.ly/6vXM6) - you should add credits! :)
+- Building texutres taken from http://textures.com

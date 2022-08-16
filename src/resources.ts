@@ -9,6 +9,10 @@ class ResourceManager {
     this.loader = undefined;
   }
 
+  /**
+   * Singleton for TextureLoader
+   * @returns The same instance of TextureLoader
+   */
   private getTextureLoader() {
     return this.loader == undefined ? new THREE.TextureLoader() : this.loader;
   }

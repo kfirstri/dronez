@@ -3,6 +3,10 @@ import { Command, Position, UAVConfig } from './types'
 import { CommandType } from './utils';
 import WorldManager from './world'
 
+/**
+ * This class inherits from THREE.Scene so it would be possible to just .add UAV into the "world" scene,
+ * It icludes inside a clone of the loaded model
+ */
 export default class UAV extends Scene {
 
   world: WorldManager;
@@ -24,17 +28,21 @@ export default class UAV extends Scene {
     this.gridPosition = config.position;
     this.target = this.position;
 
-    this.add(model);
     this.movementDivider = this.world.stepLength / this.world.boxSize;
+
+    this.add(model);
   }
 
+  /**
+   * This horrible method that totally needs refactoring calculated the next location the UAV should fly to.
+   * @param step the current step to run
+   * @returns a 3d Vector with the next target position
+   */
   getNextTarget(step: number): Vector3 {
 
     const command = this.commands[step];
 
     if (!command) return new Vector3(0, 0, 0);
-
-    console.log(`${this.name} - calcluating target ${step}`);
 
     if (command.command == CommandType.TAKEOFF) {
       return new Vector3(this.position.x, 100, this.position.z);
@@ -55,19 +63,15 @@ export default class UAV extends Scene {
     }
 
     return new Vector3(0, 0, 0);
-
-    // const newX = this.target.x + Math.round(Math.random() * 2 - 1);
-    // const newY = this.target.y + Math.round(Math.random() * 2 - 1);
-
-    // return {
-    //   x: newX < 0 || newX >= this.world.gridX ? this.target.x : newX,
-    //   y: newY < 0 || newY >= this.world.gridZ ? this.target.y : newY
-    // }
   }
 
+  /**
+   * The main idea was that the UAV always moves (if it needs to) toward the target position
+   * @param time animation time
+   * @param elapsed elapsed time since start
+   */
   animate(time: DOMHighResTimeStamp, elapsed: number) {
-    console.log(`${this.name} - target - ${this.target.toArray()}`);
-    const subVector = new Vector3(this.target.x, this.target.y, this.target.z).sub(this.position);
+    const subVector = this.target.clone().sub(this.position);
 
     const nextX = this.position.x + subVector.x / this.movementDivider;
     const nextY = this.position.y + subVector.y / this.movementDivider;

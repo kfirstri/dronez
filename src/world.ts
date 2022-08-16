@@ -46,6 +46,9 @@ class WorldManager {
 
   // #region Initialization
 
+  /**
+   * Generate random buildings and the ground + grid
+   */
   init() {
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     geometry.translate(0, 0.5, 0);
@@ -152,6 +155,9 @@ class WorldManager {
 
   // #region Animation
 
+  /**
+   * The world animation - should only animate
+   */
   animateWorld(time: DOMHighResTimeStamp) {
     if (!this.commandsRunning) return;
 
@@ -161,11 +167,11 @@ class WorldManager {
 
     const elapsed = time - this.startTime;
 
-
     this.updateUAVs(time, elapsed);
 
     // New Step
-    if ((elapsed - (this.currentStep * this.stepLength)) > this.stepLength) {
+    const isStepDone = elapsed - (this.currentStep * this.stepLength) >= this.stepLength;
+    if (isStepDone) {
       this.currentStep++;
       if (this.currentStep >= this.longestCommand) this.commandsRunning = false;
     }
@@ -174,6 +180,7 @@ class WorldManager {
   private updateUAVs(time: DOMHighResTimeStamp, elapsed: number) {
     if (!this.uavs) return;
 
+    // Every new step we have to calculate the UAV new target (this probably can go into the UAV class?)
     if (this.lastStep != this.currentStep) {
       this.uavs.forEach((uav) => { uav.target = uav.getNextTarget(this.currentStep) });
       this.lastStep = this.currentStep;
@@ -186,10 +193,18 @@ class WorldManager {
 
   // #region Utils
 
-  getGridBoxCenter(x: number, z: number, y: number = 0) {
+  /**
+   * Because we have a grid i wanted the access to the tiles will be like a matrix (<0,0> is the top left corner)
+   * we got this little calculation method that for a given <x,z> ( this is because this is the width an height in threejs)
+   * you get the actual center-tile position on the board
+   * @param x 
+   * @param z 
+   * @returns 
+   */
+  getGridBoxCenter(x: number, z: number) {
     const realX = (x - Math.floor(this.gridX / 2)) * this.boxSize;
     const realZ = (z - Math.floor(this.gridX / 2)) * this.boxSize;
-    return new THREE.Vector3(realX + Math.floor(this.boxSize / 2), y, realZ + Math.floor(this.boxSize / 2));
+    return new THREE.Vector3(realX + Math.floor(this.boxSize / 2), 0, realZ + Math.floor(this.boxSize / 2));
   }
 
   // #endregion

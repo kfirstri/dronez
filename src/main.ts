@@ -33,6 +33,10 @@ class dronezGame {
     this.animate(0.001);
   }
 
+  /**
+   * Run commands for the uavs
+   * @param commands a list of Command objects
+   */
   runCommands(commands: Command[]) {
     this.world.runCommands(commands);
   }
@@ -72,6 +76,10 @@ class dronezGame {
 
   }
 
+  /**
+   * The method the actually runs the animation and rendering
+   * @param time current animation time
+   */
   animate(time: DOMHighResTimeStamp) {
     requestAnimationFrame((time) => this.animate(time));
 
