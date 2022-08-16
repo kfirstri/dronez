@@ -4,7 +4,8 @@ import { Group, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 import { MapControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 import '../style/style.css';
-import { GameConfig } from './types';
+import { GameConfig, Command } from './types';
+import { CommandType } from './utils';
 import WorldManager from './world';
 
 class dronezGame {
@@ -29,7 +30,11 @@ class dronezGame {
 
   start() {
     this.init();
-    this.animate();
+    this.animate(0.001);
+  }
+
+  runCommands(commands: Command[]) {
+    this.world.runCommands(commands);
   }
 
   init() {
@@ -58,6 +63,7 @@ class dronezGame {
     this.gui = new GUI();
     this.gui.add(this.controls, 'screenSpacePanning');
     this.gui.add(this.world, 'shouldMoveUAVs');
+    this.gui.add(this.world, 'currentStep').listen();
 
     const folder = this.gui.addFolder('Position');
     folder.add(this.camera.position, 'x').step(0.1).listen();
@@ -66,7 +72,7 @@ class dronezGame {
 
   }
 
-  animate(time?: DOMHighResTimeStamp) {
+  animate(time: DOMHighResTimeStamp) {
     requestAnimationFrame((time) => this.animate(time));
 
     this.controls.update();
@@ -116,7 +122,7 @@ class dronezGame {
 }
 
 
-let game: GameConfig = {
+const game: GameConfig = {
   canvasElement: <HTMLCanvasElement>document.getElementById('game'),
   mapConfig: {
     randomBuildings: 30,
@@ -125,21 +131,150 @@ let game: GameConfig = {
     boxSize: 20,
     UAVs: [
       {
-        position: { x: 0, y: 4 },
-        name: "first"
+        position: { x: 5, y: 5 },
+        name: "1"
       },
       {
-        position: { x: 0, y: 6 },
-        name: "second"
+        position: { x: 5, y: 6 },
+        name: "2"
       },
-      {
-        position: { x: 3, y: 5 },
-        name: "third"
-      }
     ]
   }
 };
 
+let commands: Command[] = [
+  {
+    UAVId: "1",
+    command: CommandType.TAKEOFF
+  },
+  {
+    UAVId: "2",
+    command: CommandType.TAKEOFF
+  },
+  {
+    UAVId: "1",
+    command: CommandType.MOVE,
+    data: {
+      angle: undefined,
+      direction: {
+        x: 1,
+        y: 0
+      }
+    }
+  },
+  {
+    UAVId: "2",
+    command: CommandType.MOVE,
+    data: {
+      angle: undefined,
+      direction: {
+        x: 0,
+        y: -1
+      }
+    },
+  },
+  {
+    UAVId: "1",
+    command: CommandType.MOVE,
+    data: {
+      angle: undefined,
+      direction: {
+        x: 1,
+        y: 0
+      }
+    }
+  },
+  {
+    UAVId: "2",
+    command: CommandType.MOVE,
+    data: {
+      angle: undefined,
+      direction: {
+        x: 0,
+        y: -1
+      }
+    },
+  },
+  {
+    UAVId: "1",
+    command: CommandType.MOVE,
+    data: {
+      angle: undefined,
+      direction: {
+        x: 1,
+        y: 0
+      }
+    }
+  },
+  {
+    UAVId: "2",
+    command: CommandType.MOVE,
+    data: {
+      angle: undefined,
+      direction: {
+        x: 0,
+        y: -1
+      }
+    },
+  },
+  {
+    UAVId: "1",
+    command: CommandType.MOVE,
+    data: {
+      angle: undefined,
+      direction: {
+        x: 1,
+        y: 0
+      }
+    }
+  },
+  {
+    UAVId: "2",
+    command: CommandType.MOVE,
+    data: {
+      angle: undefined,
+      direction: {
+        x: 0,
+        y: -1
+      }
+    },
+  },
+  {
+    UAVId: "1",
+    command: CommandType.MOVE,
+    data: {
+      angle: undefined,
+      direction: {
+        x: 1,
+        y: 0
+      }
+    }
+  },
+  {
+    UAVId: "1",
+    command: CommandType.MOVE,
+    data: {
+      angle: undefined,
+      direction: {
+        x: 1,
+        y: 1
+      }
+    }
+  },
+  {
+    UAVId: "1",
+    command: CommandType.MOVE,
+    data: {
+      angle: undefined,
+      direction: {
+        x: 1,
+        y: 0
+      }
+    }
+  },
+];
+
 // Todo: add compatibility checks
 const engine = new dronezGame(game);
 engine.start();
+engine.runCommands(commands);

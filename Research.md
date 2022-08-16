@@ -10,13 +10,3 @@ https://github.com/WaelYasmina/subdivideplane/blob/main/src/js/scripts.js
 # Create a not sqaure grid
 https://stackoverflow.com/questions/56029083/change-width-and-height-of-a-gridhelper-in-three-js
 
-
-## Tasks:
-
-[X] Import and load UAV models
-[X] Change the background to something else, desert?
-[X] is the game really a grid? 
-[ ] 
-
-Map:
-* Set a start point

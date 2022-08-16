@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import { Group } from 'three';
 
 import ResourceManager from "./resources";
-import { GameConfig, UAV } from "./types";
+import { Command, GameConfig, UAVConfig } from "./types";
+import UAV from './UAV';
 
 class WorldManager {
   scene: THREE.Scene;
@@ -13,12 +13,22 @@ class WorldManager {
 
   randomBuildingsAmount: number;
 
-  uavsConfig: UAV[]
+  uavsConfig: UAVConfig[]
 
   shouldMoveUAVs: boolean = false;
-  uavs: Group[] = []
+  uavs: Map<string, UAV>;
 
   private resources: ResourceManager;
+
+  // Time Management
+  startTime: number | undefined;
+  currentStep: number = 0;
+  lastStep: number = -1;
+  readonly stepLength = 4000; // Step length in ms
+
+  // commands
+  commandsRunning: boolean = false;
+  longestCommand: number = 0;
 
   constructor(scene: THREE.Scene, config: GameConfig) {
     this.gridX = config.mapConfig.gridX;
@@ -31,6 +41,7 @@ class WorldManager {
     this.scene = scene;
 
     this.resources = new ResourceManager();
+    this.uavs = new Map();
   }
 
   // #region Initialization
@@ -101,61 +112,84 @@ class WorldManager {
 
   initModels() {
     this.resources.loadModels('../resources/uav1/scene.gltf').then((gltf) => {
-      const axesHelper = new THREE.AxesHelper(20);
-      gltf.scene.add(axesHelper);
-
       for (let UAVConfig of this.uavsConfig) {
-        const currentUAVScene = gltf.scene.clone(true);
+        const uav = new UAV(gltf.scene.clone(true), this, UAVConfig);
 
         const pos = this.getGridBoxCenter(UAVConfig.position.x, UAVConfig.position.y);
 
-        currentUAVScene.name = UAVConfig.name;
+        uav.name = UAVConfig.name;
 
-        currentUAVScene.position.z = pos.z;
-        currentUAVScene.position.x = pos.x;
-        currentUAVScene.position.y = 50;
+        uav.position.z = pos.z;
+        uav.position.x = pos.x;
+        uav.position.y = 5;
 
-        this.uavs.push(currentUAVScene);
-        this.scene.add(currentUAVScene);
+        this.uavs?.set(uav.name, uav);
+        this.scene.add(uav);
       }
     });
   }
 
   // #endregion
 
-  // #region Animation
+  // #region Commands
 
-  animateWorld(time?: DOMHighResTimeStamp) {
-    if (this.shouldMoveUAVs) this.updateUAVs(time);
+  runCommands(commands: Command[]) {
+    // Load each drone it's command
+    for (let command of commands) {
+      this.uavs?.get(command.UAVId)?.commands.push(command);
+    }
+
+    // reset steps
+    this.currentStep = 0;
+    this.lastStep = -1;
+
+    // Run the commands
+    this.longestCommand = Math.max(...Array.from(this.uavs?.values()).map((uav) => uav.commands.length));
+    this.commandsRunning = true;
   }
 
-  private updateUAVs(time: DOMHighResTimeStamp = 0.1) {
+  // #endregion
 
-    for (let uavIndex = 0; uavIndex < this.uavs.length; uavIndex++) {
-      let currentUav = this.uavs[uavIndex];
+  // #region Animation
 
-      const nextZ = currentUav.position.z + Math.abs(Math.sin(time / 2) * 0.2);
-      const nextY = currentUav.position.y + Math.sin(time / 900 + 100) * 0.2;
-      // console.log(nextZ);
+  animateWorld(time: DOMHighResTimeStamp) {
+    if (!this.commandsRunning) return;
 
-      // if (Math.floor(time) %9 == 0) currentUav.lookAt(currentUav.position.x, nextY, nextZ);
-
-      currentUav.position.z = nextZ;
-      currentUav.position.y = nextY;
-
-      let angle = Math.sin(time / 20 + 300) * 0.05;
-      currentUav.rotateZ(THREE.MathUtils.degToRad(angle)); // todo: replace this with an animation prob
+    if (this.startTime == undefined) {
+      this.startTime = time;
     }
+
+    const elapsed = time - this.startTime;
+
+
+    this.updateUAVs(time, elapsed);
+
+    // New Step
+    if ((elapsed - (this.currentStep * this.stepLength)) > this.stepLength) {
+      this.currentStep++;
+      if (this.currentStep >= this.longestCommand) this.commandsRunning = false;
+    }
+  }
+
+  private updateUAVs(time: DOMHighResTimeStamp, elapsed: number) {
+    if (!this.uavs) return;
+
+    if (this.lastStep != this.currentStep) {
+      this.uavs.forEach((uav) => { uav.target = uav.getNextTarget(this.currentStep) });
+      this.lastStep = this.currentStep;
+    }
+
+    this.uavs.forEach((uav) => uav.animate(time, elapsed));
   }
 
   // #endregion
 
   // #region Utils
 
-  private getGridBoxCenter(x: number, z: number) {
+  getGridBoxCenter(x: number, z: number, y: number = 0) {
     const realX = (x - Math.floor(this.gridX / 2)) * this.boxSize;
     const realZ = (z - Math.floor(this.gridX / 2)) * this.boxSize;
-    return new THREE.Vector3(realX + Math.floor(this.boxSize / 2), 0, realZ + Math.floor(this.boxSize / 2));
+    return new THREE.Vector3(realX + Math.floor(this.boxSize / 2), y, realZ + Math.floor(this.boxSize / 2));
   }
 
   // #endregion
