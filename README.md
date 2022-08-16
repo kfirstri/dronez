@@ -33,3 +33,8 @@ We also initalize the game Engine, load the game configuration and "play" the co
 ## Game configuration
 * GameConfig - here you pass the canvas element you want to draw on (notice that `index.html`) has a canvas element in it. In this config object we also describe the size of the map (how big is the grid) and how big is each tile on the grid.
 * Commands - list of commands intended to each UAV (has to have the UAVId)
+
+# What's missing
+[ ] HTTP Requests
+[ ] Commands need more work
+[ ]
