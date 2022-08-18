@@ -1,7 +1,8 @@
 # dronez
-Dronez programming game.
-
+Dronez programming game UI.
 This project was developed using vite, typescript and three.js
+
+![Alt text](/public/pic.png?raw=true "Picture running")
 
 
 ## How to run?
